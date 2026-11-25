@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.CurrencyCalc" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#FF101413</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+</resources>

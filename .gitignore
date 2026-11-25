@@ -1,0 +1,19 @@
+# Gradle
+.gradle/
+build/
+app/build/
+
+# Kotlin
+.kotlin/
+
+# 本地配置（含本机 SDK 路径，勿上传）
+local.properties
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+
+# 构建产物
+*.apk
+*.aab
