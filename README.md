@@ -1,7 +1,31 @@
 # 汇率计算器（Currency Calculator）
 
+[![Release](https://img.shields.io/github/v/release/huangyss/currency-calculator?color=teal&label=release)](https://github.com/huangyss/currency-calculator/releases)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![API](https://img.shields.io/badge/API-28%2B-brightgreen.svg)](https://developer.android.com/about/versions)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.4-7F52FF.svg)](https://kotlinlang.org/)
+[![CI](https://github.com/huangyss/currency-calculator/actions/workflows/android.yml/badge.svg)](https://github.com/huangyss/currency-calculator/actions/workflows/android.yml)
+
 使用 **Kotlin + Jetpack Compose + Material Design 3** 开发的 Android 汇率换算应用，
 针对 **手机 / 平板 / 折叠屏** 做了完整的自适应布局。
+
+## 📲 下载安装
+
+直接下载最新安装包，手机上打开即可安装（Android 9+）：
+
+**➡️ [Releases 页面下载 CurrencyCalculator-v1.1.0.apk](https://github.com/huangyss/currency-calculator/releases/latest)**
+
+## ✨ 界览
+
+| 手机 · 换算页 | 平板 · 双栏自适应 |
+|:---:|:---:|
+| ![手机换算页](docs/screenshots/phone-convert.png) | ![平板双栏](docs/screenshots/tablet-twopane.png) |
+
+| 汇率表 | 深色模式 |
+|:---:|:---:|
+| ![汇率表](docs/screenshots/phone-rates.png) | ![深色模式](docs/screenshots/phone-dark.png) |
+
+> 仓库内 [`preview.html`](preview.html) 是可交互的 Material 3 网页预览，浏览器直接打开即可体验换算逻辑与两种布局。
 
 ## 功能特性
 
@@ -81,3 +105,24 @@ cd CurrencyCalculator
 
 汇率数据：[Frankfurter API](https://www.frankfurter.app/)（欧洲央行每个工作日约 16:00 CET 发布参考汇率）。
 本应用仅供学习与日常换算参考，不构成任何交易依据。
+
+## 持续集成
+
+`main` 分支每次推送 / PR 都会触发 [GitHub Actions](https://github.com/huangyss/currency-calculator/actions/workflows/android.yml)：
+自动安装 Android 37.2 SDK → `./gradlew assembleDebug` → 上传 APK 构建产物。
+
+## 参与贡献
+
+欢迎提交 [Issue](https://github.com/huangyss/currency-calculator/issues) 反馈问题或建议：
+
+1. Fork 本仓库并创建分支：`git checkout -b feature/your-feature`
+2. 提交改动：`git commit -m "feat: xxx"`
+3. 推送并发起 Pull Request
+
+## 开源协议
+
+本项目基于 [MIT License](LICENSE) 开源，© 2026 Horizon (huangyss)。
+
+## 版本记录
+
+见 [CHANGELOG.md](CHANGELOG.md)。
