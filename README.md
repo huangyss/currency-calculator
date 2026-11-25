@@ -13,7 +13,7 @@
 
 直接下载最新安装包，手机上打开即可安装（Android 9+）：
 
-**➡️ [Releases 页面下载 CurrencyCalculator-v1.1.0.apk](https://github.com/huangyss/currency-calculator/releases/latest)**
+**➡️ [前往 Releases 页面下载 APK](https://github.com/huangyss/currency-calculator/releases/latest)**（当前最新：v1.1.1）
 
 ## ✨ 界览
 

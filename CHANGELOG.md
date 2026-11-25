@@ -2,6 +2,19 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)，日期为发布日期。
 
+## [1.1.1] - 2026-11-26
+
+### 🐛 修复
+- **构建配置修复**（此前 clone 源码可能无法构建）：
+  - `gradle-wrapper.properties` 由 Gradle 8.9 修正为 9.6.0，与 AGP 9.5.2 匹配
+  - 顶层 `buildscript` 显式声明 `google()` / `mavenCentral()` / `gradlePluginPortal()` 仓库
+  - Compose 编译器插件改由 buildscript classpath 解析，不再依赖 plugin marker 链路
+
+### 🔧 其他
+- 新增 GitHub Actions CI：push / PR 自动构建 debug APK
+- 新增 MIT LICENSE、CHANGELOG、Bug Issue 模板
+- README 增加徽章、界面截图与下载入口
+
 ## [1.1.0] - 2026-11-25
 
 ### ✨ 新增
