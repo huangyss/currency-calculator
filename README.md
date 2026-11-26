@@ -15,7 +15,7 @@
 
 **➡️ [前往 Releases 页面下载 APK](https://github.com/huangyss/currency-calculator/releases/latest)**（当前最新：v1.2.0）
 
-## ✨ 界览
+## ✨ 界面预览
 
 | 手机 · 换算页 | 平板 · 双栏自适应 |
 |:---:|:---:|
@@ -110,7 +110,7 @@ app/src/test/java/...            # 单元测试（28 个用例）
 
 ## 数据来源
 
-汇率数据：[Frankfurter API](https://www.frankfurter.app/)（欧洲央行每个工作日约 16:00 CET 发布参考汇率）。
+汇率数据：[Frankfurter API](https://frankfurter.dev/)（欧洲央行每个工作日约 16:00 CET 发布参考汇率）。
 本应用仅供学习与日常换算参考，不构成任何交易依据。
 
 ## 单元测试
