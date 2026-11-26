@@ -25,7 +25,7 @@
 |:---:|:---:|
 | ![汇率表](docs/screenshots/phone-rates.png) | ![深色模式](docs/screenshots/phone-dark.png) |
 
-> 仓库内 [`preview.html`](preview.html) 是可交互的 Material 3 网页预览，浏览器直接打开即可体验换算逻辑与两种布局。
+> 想先看效果？把仓库根目录的 [`preview.html`](preview.html) 下载到本地（页面右上角 **Download raw file**），双击即可在浏览器体验换算逻辑与两种布局。
 
 ## 功能特性
 
@@ -106,7 +106,10 @@ app/src/test/java/...            # 单元测试（28 个用例）
 ## UI 预览
 
 仓库根目录下的 [`preview.html`](preview.html) 是可交互的 Material 3 网页预览，
-可在浏览器中体验手机 / 平板双栏两种布局与换算逻辑（直接双击打开即可，无需服务器）。
+可在浏览器中体验手机 / 平板双栏两种布局与换算逻辑。
+
+> ⚠️ GitHub 不渲染 HTML 文件，直接点击只会看到源码。请点页面右上角 **Download raw file**
+> 下载到本地后双击打开，无需服务器。
 
 ## 数据来源
 
