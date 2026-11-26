@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
@@ -35,7 +37,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.exchangerate.calculator.ConverterState
 import com.exchangerate.calculator.R
 import com.exchangerate.calculator.RatesUiState
@@ -229,6 +233,7 @@ private fun ResultCard(
     val rate = snapshot.rateBetween(converter.fromCode, converter.toCode)
     val amount = FormatUtils.parseAmount(converter.amountInput)
     val converted = if (rate != null) amount * rate else Double.NaN
+    val convertedText = FormatUtils.formatAmount(converted, toCurrency.fractionDigits)
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -245,18 +250,32 @@ private fun ResultCard(
 
             Spacer(Modifier.height(8.dp))
 
-            Row(verticalAlignment = Alignment.Bottom) {
-                Text(
-                    text = FormatUtils.formatAmount(converted, toCurrency.fractionDigits),
-                    style = MaterialTheme.typography.displaySmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                // 金额位数不定（12 位整数 + 千分位 + 小数），按可用宽度自动缩放字号，避免溢出换行
+                BasicText(
+                    text = convertedText,
+                    modifier = Modifier.weight(1f, fill = false),
+                    style = MaterialTheme.typography.displaySmall.copy(
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    autoSize = TextAutoSize.StepBased(
+                        minFontSize = 18.sp,
+                        maxFontSize = MaterialTheme.typography.displaySmall.fontSize,
+                        stepSize = 1.sp
+                    )
                 )
                 Spacer(Modifier.width(10.dp))
                 Text(
                     text = toCurrency.code,
                     style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1
                 )
             }
 

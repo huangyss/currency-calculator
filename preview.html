@@ -271,13 +271,19 @@
   .swap-btn svg { width: 24px; height: 24px; }
 
   /* 结果区 */
-  .result-row { display: flex; align-items: baseline; gap: 10px; margin: 8px 0 2px; }
+  .result-row { display: flex; align-items: baseline; gap: 10px; margin: 8px 0 2px; min-width: 0; }
   .result-num {
     font-size: 42px; font-weight: 800; letter-spacing: -.02em;
     color: var(--primary);
     line-height: 1.1;
+    display: inline-block;
+    min-width: 0;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .result-code { font-size: 24px; font-weight: 600; color: var(--on-surface-variant); }
+  .result-code { flex: none; font-size: 24px; font-weight: 600; color: var(--on-surface-variant); }
   .result-name { font-size: 15px; color: var(--on-surface-variant); }
   hr { border: none; border-top: 1px solid var(--outline-variant); margin: 16px 0; }
   .rate-line { font-size: 17px; font-weight: 600; margin-top: 4px; }
@@ -626,6 +632,24 @@ function showToast(msg) {
 }
 
 /* ================= 渲染 ================= */
+/* 结果数字按可用宽度自适应缩放：大额金额不溢出、不折行 */
+function fitResultNum() {
+  const num = $("resultNum");
+  const row = num.parentElement;
+  const code = $("resultCode");
+  num.style.fontSize = "";
+  const base = parseFloat(getComputedStyle(num).fontSize) || 42;
+  const min = 18;
+  const gap = parseFloat(getComputedStyle(row).columnGap) || 10;
+  const avail = row.clientWidth - code.offsetWidth - gap;
+  if (avail <= 0) return;
+  let size = base;
+  while (size > min && num.scrollWidth > avail + 0.5) {
+    size -= 1;
+    num.style.fontSize = size + "px";
+  }
+}
+
 function renderConvert() {
   const from = find(state.from), to = find(state.to);
   $("fromText").textContent = `${from.code} ${from.nameZh}`;
@@ -642,6 +666,8 @@ function renderConvert() {
 
   $("metaText").textContent = `数据日期 ${state.snapshot.date} · 欧洲央行参考汇率`;
   $("cacheBadge").hidden = !state.fromCache;
+
+  fitResultNum();
 }
 
 function renderRates() {
@@ -724,6 +750,7 @@ function switchTab(name) {
     $("view-rates").hidden = name !== "rates";
   }
   if (name === "rates") renderRates();
+  if (name === "convert" || deviceMode === "tablet") fitResultNum();
 }
 document.querySelectorAll(".tab").forEach(t =>
   t.addEventListener("click", () => switchTab(t.dataset.tab)));
@@ -736,7 +763,9 @@ function setDeviceMode(mode) {
   const active = document.querySelector(".tab.active").dataset.tab;
   switchTab(active);
   if (mode === "tablet") renderRates();
+  fitResultNum();
 }
+addEventListener("resize", fitResultNum);
 document.querySelectorAll(".dev-btn").forEach(b =>
   b.addEventListener("click", () => setDeviceMode(b.dataset.device)));
 
