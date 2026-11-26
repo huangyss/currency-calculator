@@ -1,5 +1,6 @@
 package com.exchangerate.calculator.data
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -28,7 +29,9 @@ data class RateSnapshot(
 
 /**
  * 汇率 API：Frankfurter（欧洲央行每日参考汇率，免费无需密钥）
- * 主备两个域名，任一可用即可
+ *
+ * 两个域名属于同一服务的新旧地址（旧域名 301 跳转到新域名），
+ * 这里依次尝试只是为了避免单一入口故障，不构成互为备份的两套数据源。
  */
 class RatesApi {
 
@@ -55,6 +58,9 @@ class RatesApi {
                     val body = resp.body?.string() ?: throw IOException("服务器返回空响应")
                     return@withContext parse(body)
                 }
+            } catch (e: CancellationException) {
+                // 协程取消不应被当成"换个端点再试一次"的理由
+                throw e
             } catch (e: Exception) {
                 lastError = e
             }

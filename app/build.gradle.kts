@@ -15,8 +15,8 @@ android {
         applicationId = "com.exchangerate.calculator"
         minSdk = 28
         targetSdk = 37
-        versionCode = 3
-        versionName = "1.1.1"
+        versionCode = 4
+        versionName = "1.2.0"
 
         vectorDrawables {
             useSupportLibrary = true
@@ -79,6 +79,10 @@ dependencies {
 
     // 协程
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+
+    // 单元测试：JUnit4 + 真实的 org.json 实现（android.jar 中的 JSONObject 在 JVM 测试里是空桩）
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")

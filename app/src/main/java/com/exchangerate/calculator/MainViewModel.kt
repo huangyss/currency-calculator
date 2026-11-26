@@ -4,7 +4,11 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.exchangerate.calculator.data.RateSnapshot
+import com.exchangerate.calculator.data.RateSource
 import com.exchangerate.calculator.data.RatesRepository
+import com.exchangerate.calculator.ui.AmountInput
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +18,12 @@ import kotlinx.coroutines.launch
 /** 页面加载状态 */
 sealed interface RatesUiState {
     data object Loading : RatesUiState
-    data class Success(val snapshot: RateSnapshot, val fromCache: Boolean = false) : RatesUiState
+
+    /**
+     * @param stale true 表示网络失败、当前展示的是兜底缓存，可能已过期
+     */
+    data class Success(val snapshot: RateSnapshot, val stale: Boolean = false) : RatesUiState
+
     data class Error(val message: String) : RatesUiState
 }
 
@@ -38,42 +47,51 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _converter = MutableStateFlow(ConverterState())
     val converter: StateFlow<ConverterState> = _converter.asStateFlow()
 
+    /** 已有数据时的后台刷新标记（用于顶部进度指示，不打断当前内容） */
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
+    private var refreshJob: Job? = null
+
+    /** 刷新序号：取消旧任务时旧任务的收尾不得清掉新任务的刷新标记 */
+    private var refreshSeq = 0
+
     init {
         refresh(force = false)
     }
 
     fun refresh(force: Boolean = true) {
-        viewModelScope.launch {
-            // 强制刷新时保留旧数据直到新数据到达（避免闪屏）
-            if (_uiState.value !is RatesUiState.Success || force.not()) {
-                if (_uiState.value !is RatesUiState.Success) {
-                    _uiState.value = RatesUiState.Loading
-                }
+        // 新请求取代旧请求，避免慢的旧响应覆盖新数据
+        refreshJob?.cancel()
+        val seq = ++refreshSeq
+        _isRefreshing.value = true
+
+        refreshJob = viewModelScope.launch {
+            // 已有数据时保留旧数据直到新数据到达（避免闪屏），否则先显示加载态
+            if (_uiState.value !is RatesUiState.Success) {
+                _uiState.value = RatesUiState.Loading
             }
             try {
-                val snapshot = repository.getRates(forceRefresh = force)
-                val fromCache = isFromCache(snapshot)
-                _uiState.value = RatesUiState.Success(snapshot, fromCache)
+                val result = repository.getRates(forceRefresh = force)
+                _uiState.value = RatesUiState.Success(
+                    snapshot = result.snapshot,
+                    stale = result.source == RateSource.FALLBACK
+                )
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 _uiState.value = RatesUiState.Error(e.message ?: "获取汇率失败")
+            } finally {
+                if (seq == refreshSeq) {
+                    _isRefreshing.value = false
+                }
             }
         }
     }
 
-    private fun isFromCache(snapshot: RateSnapshot): Boolean =
-        System.currentTimeMillis() - snapshot.fetchedAt > 5 * 60 * 1000L
-
     fun onAmountChange(input: String) {
-        // 只允许数字和一个小数点
-        val filtered = input.filter { it.isDigit() || it == '.' }
-            .let { s ->
-                val firstDot = s.indexOf('.')
-                if (firstDot >= 0) {
-                    s.substring(0, firstDot + 1) + s.substring(firstDot + 1).replace(".", "")
-                } else s
-            }
-        if (filtered.length <= 12) {
-            _converter.update { it.copy(amountInput = filtered) }
+        AmountInput.sanitize(input)?.let { sanitized ->
+            _converter.update { it.copy(amountInput = sanitized) }
         }
     }
 
@@ -85,7 +103,4 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun swap() = _converter.update {
         it.copy(fromCode = it.toCode, toCode = it.fromCode)
     }
-
-    val amountValue: Double
-        get() = _converter.value.amountInput.toDoubleOrNull() ?: 0.0
 }

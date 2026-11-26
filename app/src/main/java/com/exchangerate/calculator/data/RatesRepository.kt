@@ -1,7 +1,23 @@
 package com.exchangerate.calculator.data
 
 import android.content.Context
+import kotlinx.coroutines.CancellationException
 import org.json.JSONObject
+
+/** 数据来源：决定界面要不要提示「离线缓存」 */
+enum class RateSource {
+    /** 本次刚从网络取回 */
+    NETWORK,
+
+    /** 磁盘缓存，且仍属于当前这批汇率（内容与网络一致） */
+    CACHE,
+
+    /** 网络失败后的兜底缓存，可能已过期 */
+    FALLBACK
+}
+
+/** 仓库返回结果：快照 + 来源标记（来源由仓库判定，界面不再自己猜） */
+data class RateResult(val snapshot: RateSnapshot, val source: RateSource)
 
 /**
  * 汇率仓库：网络拉取 + 本地缓存（SharedPreferences）
@@ -13,29 +29,31 @@ class RatesRepository(context: Context) {
     private val prefs = context.getSharedPreferences("rates_cache", Context.MODE_PRIVATE)
 
     /**
-     * 获取汇率快照
-     * @param forceRefresh true 时跳过缓存有效期强制刷新
-     * @return 汇率快照（可能来自缓存，通过 fetchedAt 判断新旧）
+     * 获取汇率。
+     * @param forceRefresh true 时跳过缓存直接请求网络
+     * @return 快照与其来源；调用方据此决定是否展示「离线缓存」标识
      */
-    suspend fun getRates(forceRefresh: Boolean = false): RateSnapshot {
+    suspend fun getRates(forceRefresh: Boolean = false): RateResult {
         if (!forceRefresh) {
             loadCache()?.let { cached ->
-                if (!cached.isStale()) return cached
+                if (RateFreshness.isFresh(cached.fetchedAt)) {
+                    return RateResult(cached, RateSource.CACHE)
+                }
             }
         }
         try {
             val fresh = api.fetchUsdRates()
             saveCache(fresh)
-            return fresh
+            return RateResult(fresh, RateSource.NETWORK)
+        } catch (e: CancellationException) {
+            // 协程取消必须继续往上抛，否则会被当成网络失败而返回缓存
+            throw e
         } catch (e: Exception) {
-            // 网络失败时兜底返回缓存（即便已过期）
-            loadCache()?.let { return it }
+            // 网络失败时兜底返回缓存（即便已过期），由来源标记告知界面
+            loadCache()?.let { return RateResult(it, RateSource.FALLBACK) }
             throw e
         }
     }
-
-    private fun RateSnapshot.isStale(): Boolean =
-        System.currentTimeMillis() - fetchedAt > STALE_THRESHOLD_MS
 
     private fun saveCache(snapshot: RateSnapshot) {
         val ratesJson = JSONObject()
@@ -60,12 +78,8 @@ class RatesRepository(context: Context) {
         }
     }
 
-    /** 是否已有缓存（用于展示"离线缓存"标识） */
-    fun hasCache(): Boolean = prefs.contains(KEY_BODY)
-
     companion object {
         private const val KEY_BODY = "body"
         private const val KEY_FETCHED_AT = "fetched_at"
-        private const val STALE_THRESHOLD_MS = 30 * 60 * 1000L // 30 分钟
     }
 }

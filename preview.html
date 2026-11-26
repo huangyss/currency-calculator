@@ -532,9 +532,9 @@
     <h2>APP 信息</h2>
     <ul>
       <li><b>技术栈</b>：Kotlin 2.4 + Jetpack Compose + Material Design 3（AGP 9.5 内置 Kotlin，支持 Material You 动态取色）</li>
-      <li><b>汇率数据</b>：Frankfurter 开放 API（欧洲央行每个工作日发布的参考汇率），免密钥、主备域名容错</li>
+      <li><b>汇率数据</b>：Frankfurter 开放 API（欧洲央行每个工作日约 16:00 CET 发布的参考汇率），免密钥；新旧两个域名属同一服务</li>
       <li><b>币种覆盖</b>：30 种常用货币，含中文名称与货币符号，自动过滤 API 不提供的币种</li>
-      <li><b>离线能力</b>：汇率缓存到本地（SharedPreferences），断网时回退最近一次数据并标注「缓存数据」</li>
+      <li><b>离线能力</b>：汇率缓存到本地（SharedPreferences），以欧洲央行发布时刻判定新旧，断网时回退最近一次数据并标注「离线缓存」</li>
       <li><b>交互细节</b>：一键互换 ⇅、快捷金额 chips、汇率表点选直达换算、下拉搜索式币种选择</li>
       <li><b>平板适配</b>：按窗口宽度三档自适应 —— compact 顶部 Tab 单栏 / medium 侧边导航栏 + 居中限宽 / expanded 平板横屏双栏（换算 + 汇率表并排，独立滚动）</li>
       <li><b>适配</b>：手机 / 平板 / 折叠屏 / 分屏，深浅色主题，Android 9 – 17（API 28–37），满足 Android 17 大屏强制自适应要求</li>
